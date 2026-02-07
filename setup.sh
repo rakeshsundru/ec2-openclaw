@@ -5,12 +5,7 @@
 # Usage:
 #   chmod +x setup.sh
 #   ./setup.sh
-#   # Then configure your API key:
-#   openclaw config set agent.model anthropic/claude-opus-4-6
-#   export ANTHROPIC_API_KEY="your-key-here"
-#   # Or for OpenAI:
-#   openclaw config set agent.model openai/gpt-4o
-#   export OPENAI_API_KEY="your-key-here"
+#   # Then set your API key in ~/.openclaw/openclaw.json under "env"
 
 set -euo pipefail
 
@@ -51,27 +46,30 @@ echo ""
 echo "--- Configuring gateway ---"
 openclaw config set gateway.mode local
 
-# Run doctor to verify
+# Fix permissions and create credentials dir
+chmod 700 ~/.openclaw
+mkdir -p ~/.openclaw/credentials
+
+# Apply doctor fixes
 echo ""
-echo "--- Running health check ---"
-openclaw doctor
+echo "--- Running health check and applying fixes ---"
+openclaw doctor --fix
 
 echo ""
 echo "=== Setup Complete ==="
 echo ""
 echo "Next steps:"
-echo "  1. Set your AI provider API key:"
-echo "     export ANTHROPIC_API_KEY=\"sk-ant-...\""
-echo "     openclaw config set agent.model anthropic/claude-opus-4-6"
+echo "  1. Add your Anthropic API key to ~/.openclaw/openclaw.json:"
+echo '     Add "env": { "ANTHROPIC_API_KEY": "sk-ant-..." } to the config'
 echo ""
-echo "  2. Run the onboarding wizard (optional):"
-echo "     openclaw onboard"
+echo "  2. Add your phone number to the WhatsApp allowlist:"
+echo '     Edit channels.whatsapp.allowFrom in ~/.openclaw/openclaw.json'
 echo ""
 echo "  3. Start the gateway in the foreground (no systemd in containers):"
 echo "     openclaw gateway --port 18789 --verbose"
 echo ""
-echo "  4. Connect a channel (e.g., WhatsApp):"
+echo "  4. Link WhatsApp (scan QR code):"
 echo "     openclaw channels login --verbose"
 echo ""
 echo "  5. Send a test message:"
-echo "     openclaw agent --message \"Hello, OpenClaw!\""
+echo '     openclaw agent --message "Hello, OpenClaw!"'
