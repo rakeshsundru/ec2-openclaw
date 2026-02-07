@@ -1,0 +1,36 @@
+{
+  "$schema": "https://openclaw.ai/schema/config.json",
+  "agent": {
+    "model": "anthropic/claude-sonnet-4-20250514",
+    "thinking": "medium"
+  },
+  "gateway": {
+    "host": "127.0.0.1",
+    "port": 18789,
+    "auth": {
+      "mode": "token"
+    }
+  },
+  "agents": {
+    "defaults": {
+      "workspace": "~/.openclaw/workspace",
+      "sandbox": {
+        "mode": "off"
+      }
+    }
+  },
+  "channels": {
+    "_comment": "Uncomment and configure the channels you want to use",
+
+    "webchat": {
+      "enabled": true
+    }
+  },
+  "skills": {
+    "clawhub": false,
+    "workspace": true
+  },
+  "keys": {
+    "anthropic": "__YOUR_ANTHROPIC_API_KEY__"
+  }
+}

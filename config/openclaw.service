@@ -1,0 +1,27 @@
+[Unit]
+Description=OpenClaw Gateway Daemon
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=__USER__
+Group=__USER__
+WorkingDirectory=__HOME__/.openclaw/workspace
+Environment="HOME=__HOME__"
+Environment="PATH=__HOME__/.npm-global/bin:__HOME__/.nvm/versions/node/v22/bin:__HOME__/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ExecStart=__HOME__/.npm-global/bin/openclaw gateway --port 18789
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=__HOME__/.openclaw __HOME__/.openclaw/workspace
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
