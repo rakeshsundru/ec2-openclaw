@@ -1,48 +1,64 @@
 # ec2-openclaw
 
-OpenClaw installation and configuration for EC2 instances.
+OpenClaw + WhatsApp integration on EC2.
 
-## Quick Setup
+## One-Command Setup (on your real EC2)
+
+SSH into your EC2 instance and run:
 
 ```bash
-chmod +x setup.sh
-./setup.sh
+git clone https://github.com/rakeshsundru/ec2-openclaw.git
+cd ec2-openclaw
+chmod +x ec2-full-setup.sh
+./ec2-full-setup.sh
 ```
+
+This script will:
+1. Install Node.js 22 (if needed)
+2. Install OpenClaw globally
+3. Prompt for your Anthropic API key and WhatsApp number
+4. Write the full config (`~/.openclaw/openclaw.json`)
+5. Start the gateway
+6. Show a QR code for WhatsApp linking
 
 ## Prerequisites
 
+- EC2 instance (Ubuntu recommended) with internet access
 - Node.js >= 22
-- npm or pnpm
+- Anthropic API key ([get one here](https://console.anthropic.com/settings/keys))
+- WhatsApp account with a phone number
 
 ## After Setup
 
-1. **Set your API key:**
-   ```bash
-   export ANTHROPIC_API_KEY="your-key"
-   openclaw config set agent.model anthropic/claude-opus-4-6
-   ```
+Send a test message:
+```bash
+openclaw message send --to +916302642731 --message "Hello from OpenClaw!"
+```
 
-2. **Start the gateway** (foreground, since EC2 containers lack systemd):
-   ```bash
-   openclaw gateway --port 18789 --verbose
-   ```
+Chat with the agent:
+```bash
+openclaw agent --message "Summarize today's news" --to +916302642731 --deliver
+```
 
-3. **Connect a channel** (WhatsApp, Telegram, etc.):
-   ```bash
-   openclaw channels login --verbose
-   ```
+Check status:
+```bash
+openclaw status
+openclaw health
+```
 
-4. **Test it:**
-   ```bash
-   openclaw agent --message "Hello from EC2!"
-   ```
+## Keep Gateway Running
 
-## If Your Session Resets
-
-Run `./setup.sh` again to reinstall and reconfigure OpenClaw.
+Use `tmux` or `screen` so the gateway survives SSH disconnect:
+```bash
+tmux new -s openclaw
+openclaw gateway --port 18789 --verbose
+# Press Ctrl+B, then D to detach
+# Reconnect later: tmux attach -t openclaw
+```
 
 ## References
 
 - [OpenClaw GitHub](https://github.com/openclaw/openclaw)
 - [OpenClaw Docs](https://docs.openclaw.ai/getting-started)
+- [WhatsApp Channel Docs](https://docs.openclaw.ai/channels/whatsapp)
 - [OpenClaw Skills](https://github.com/VoltAgent/awesome-openclaw-skills)
