@@ -1,36 +1,21 @@
 {
-  "$schema": "https://openclaw.ai/schema/config.json",
-  "agent": {
-    "model": "anthropic/claude-sonnet-4-20250514",
-    "thinking": "medium"
-  },
-  "gateway": {
-    "host": "127.0.0.1",
-    "port": 18789,
-    "auth": {
-      "mode": "token"
-    }
-  },
   "agents": {
     "defaults": {
+      "model": {
+        "primary": "anthropic/claude-sonnet-4-20250514"
+      },
       "workspace": "~/.openclaw/workspace",
       "sandbox": {
         "mode": "off"
       }
     }
   },
-  "channels": {
-    "_comment": "Uncomment and configure the channels you want to use",
-
-    "webchat": {
-      "enabled": true
+  "gateway": {
+    "port": 18789,
+    "mode": "local",
+    "auth": {
+      "mode": "token",
+      "token": "__GENERATE_A_RANDOM_TOKEN__"
     }
-  },
-  "skills": {
-    "clawhub": false,
-    "workspace": true
-  },
-  "keys": {
-    "anthropic": "__YOUR_ANTHROPIC_API_KEY__"
   }
 }

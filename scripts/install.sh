@@ -213,9 +213,19 @@ install_service() {
     local REPO_DIR
     REPO_DIR="$(dirname "$SCRIPT_DIR")"
 
+    # Install the startup wrapper script
+    if [ -f "$REPO_DIR/config/start-openclaw.sh" ]; then
+        log "Installing startup wrapper..."
+        sed "s|__USER__|$USER|g; s|__HOME__|$HOME|g" \
+            "$REPO_DIR/config/start-openclaw.sh" \
+            > "$HOME/start-openclaw.sh"
+        chmod +x "$HOME/start-openclaw.sh"
+        warn "Edit ~/start-openclaw.sh and set your ANTHROPIC_API_KEY before starting."
+    fi
+
+    # Install the systemd service
     if [ -f "$REPO_DIR/config/openclaw.service" ]; then
         log "Installing systemd service..."
-        # Substitute the current username into the service file
         sed "s|__USER__|$USER|g; s|__HOME__|$HOME|g" \
             "$REPO_DIR/config/openclaw.service" \
             > /tmp/openclaw.service
@@ -251,14 +261,15 @@ main() {
     log "============================================"
     echo ""
     echo "Next steps:"
-    echo "  1. Edit ~/.openclaw/openclaw.json with your API keys"
-    echo "  2. Run: openclaw onboard"
-    echo "  3. Enable the daemon: sudo systemctl enable --now openclaw"
-    echo "  4. Check OpenClaw skills: ls ~/.openclaw/workspace/skills/"
-    echo "  5. Check Claude Code skills: ls ~/.claude/skills/"
+    echo "  1. Set your API key:  nano ~/start-openclaw.sh"
+    echo "  2. Set gateway token: nano ~/.openclaw/openclaw.json"
+    echo "  3. Start the daemon:  sudo systemctl enable --now openclaw"
+    echo "  4. Check status:      systemctl status openclaw"
+    echo "  5. View logs:         journalctl -u openclaw -f"
     echo ""
-    echo "  Or run the interactive setup:"
-    echo "    openclaw onboard --install-daemon"
+    echo "  Skills installed at:"
+    echo "    ~/.openclaw/workspace/skills/  (OpenClaw workspace skills)"
+    echo "    ~/.claude/skills/              (Claude Code skills)"
     echo ""
 }
 
