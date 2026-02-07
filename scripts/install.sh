@@ -10,7 +10,7 @@
 #   ./scripts/install.sh
 #
 # Prerequisites:
-#   - EC2 instance with at least 2 GB RAM (t3.small or larger recommended)
+#   - EC2 instance with at least 4 GB RAM (t3.medium or larger recommended)
 #   - Non-root user with sudo access
 #   - Internet connectivity
 # =============================================================================
@@ -73,7 +73,7 @@ install_system_deps() {
 }
 
 # ---------------------------------------------------------------------------
-# Install Node.js >= 22 via nvm
+# Install Node.js >= 22 via NodeSource (recommended for servers)
 # ---------------------------------------------------------------------------
 install_node() {
     local REQUIRED_MAJOR=22
@@ -89,39 +89,35 @@ install_node() {
         fi
     fi
 
-    log "Installing nvm and Node.js v${REQUIRED_MAJOR}..."
-    export NVM_DIR="$HOME/.nvm"
-    if [ ! -d "$NVM_DIR" ]; then
-        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
-    fi
-    # shellcheck source=/dev/null
-    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-    nvm install "$REQUIRED_MAJOR"
-    nvm use "$REQUIRED_MAJOR"
-    nvm alias default "$REQUIRED_MAJOR"
+    log "Installing Node.js v${REQUIRED_MAJOR} via NodeSource..."
+
+    case "$OS_ID" in
+        ubuntu|debian)
+            curl -fsSL https://deb.nodesource.com/setup_${REQUIRED_MAJOR}.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+            ;;
+        amzn|al2023)
+            curl -fsSL https://rpm.nodesource.com/setup_${REQUIRED_MAJOR}.x | sudo bash -
+            sudo dnf install -y nodejs
+            ;;
+    esac
 
     log "Node.js $(node -v) installed successfully."
 }
 
 # ---------------------------------------------------------------------------
-# Install OpenClaw
+# Install OpenClaw (official installer)
 # ---------------------------------------------------------------------------
 install_openclaw() {
-    log "Installing OpenClaw..."
+    log "Installing OpenClaw via official installer..."
 
-    # Set up user-local npm prefix to avoid sudo
-    mkdir -p "$HOME/.npm-global"
-    npm config set prefix "$HOME/.npm-global"
+    curl -fsSL https://openclaw.ai/install.sh | bash
 
-    # Ensure PATH includes npm global bin
-    if ! echo "$PATH" | grep -q "$HOME/.npm-global/bin"; then
-        export PATH="$HOME/.npm-global/bin:$PATH"
-        if ! grep -q '.npm-global/bin' "$HOME/.bashrc" 2>/dev/null; then
-            echo 'export PATH="$HOME/.npm-global/bin:$PATH"' >> "$HOME/.bashrc"
-        fi
+    # Source updated PATH
+    export PATH="$HOME/.local/bin:$HOME/.openclaw/bin:$PATH"
+    if ! grep -q '.openclaw/bin' "$HOME/.bashrc" 2>/dev/null; then
+        echo 'export PATH="$HOME/.local/bin:$HOME/.openclaw/bin:$PATH"' >> "$HOME/.bashrc"
     fi
-
-    npm install -g openclaw@latest
 
     log "OpenClaw $(openclaw --version 2>/dev/null || echo 'installed') successfully."
 }

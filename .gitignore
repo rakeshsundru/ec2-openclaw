@@ -1,0 +1,11 @@
+# SSH keys
+*.pem
+*.key
+
+# Environment files
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
